@@ -19,3 +19,9 @@ class RecipeDetailSerializer(RecipeSerializer):
 
     class Meta(RecipeSerializer.Meta):
         fields = RecipeSerializer.Meta.fields + ['description']
+
+    def create(self, validated_data):
+        """Create a recipe."""
+        recipe = Recipe.objects.create(**validated_data)
+
+        return recipe
