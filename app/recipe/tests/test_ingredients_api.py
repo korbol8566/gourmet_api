@@ -21,32 +21,32 @@ from recipe.serializers import IngredientSerializer
 INGREDIENTS_URL = reverse('recipe:ingredient-list')
 
 def detail_url(ingredient_id):
-    """Create and return an ingredient detail URL."""
+    """Create and return an ingredient detail url"""
     return reverse('recipe:ingredient-detail', args=[ingredient_id])
 
 def create_user(email='user@example.com', password='testpass123'):
-    """Create and return user."""
-    return get_user_model().objects.create_user(email=email, password=password)
+    """Create a user and return it"""
+    return get_user_model().objects.create(email=email, password=password)
 
 class PublicIngredientsApiTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
-        self.client = APIClient()
+       self.client = APIClient()
 
     def test_auth_required(self):
-        """Test auth is required for retrieving ingredients."""
+        """Test auth is required to call API."""
         res = self.client.get(INGREDIENTS_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-class PrivateIngredientsApiTests(TestCase):
-    """Test authenticated API requests."""
+class PrivateIngredientsApi(TestCase):
+    """Test authenticated API requests"""
 
     def setUp(self):
-        self.user = create_user()
-        self.client = APIClient()
-        self.client.force_authenticate(self.user)
+            self.client = APIClient()
+            self.user = create_user(email='user@example.com', password='test123')
+            self.client.force_authenticate(self.user)
 
     def test_retrieve_ingredients(self):
         """Test retrieving a list of ingredients."""
@@ -74,10 +74,9 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(res.data[0]['id'], ingredient.id)
 
     def test_update_ingredient(self):
-        """Test updating an ingredient."""
-        ingredient = Ingredient.objects.create(user=self.user, name='Cilantro')
-
-        payload = {'name': 'Coriander'}
+        """Test updating an existing ingredient"""
+        ingredient = Ingredient.objects.create(user=self.user, name='Chili')
+        payload = {'name': 'Chili'}
         url = detail_url(ingredient.id)
         res = self.client.patch(url, payload)
 
@@ -86,12 +85,14 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(ingredient.name, payload['name'])
 
     def test_delete_ingredient(self):
-        """Test deleting an ingredient."""
+        """Test deleting an existing ingredient"""
         ingredient = Ingredient.objects.create(user=self.user, name='Lettuce')
 
         url = detail_url(ingredient.id)
         res = self.client.delete(url)
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        ingredients = Ingredient.objects.filter(user=self.user)
-        self.assertFalse(ingredients.exists())
+        ingredient = Ingredient.objects.filter(user=self.user)
+        self.assertFalse(ingredient.exists())
+
+
