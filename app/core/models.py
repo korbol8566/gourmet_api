@@ -1,5 +1,6 @@
-"""Database models"""
-
+"""
+Database models.
+"""
 import uuid
 import os
 
@@ -11,12 +12,14 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 
+
 def recipe_image_file_path(instance, filename):
     """Generate file path for new recipe image."""
     ext = os.path.splitext(filename)[1]
     filename = f'{uuid.uuid4()}{ext}'
 
     return os.path.join('uploads', 'recipe', filename)
+
 
 class UserManager(BaseUserManager):
     """Manager for users."""
@@ -40,6 +43,7 @@ class UserManager(BaseUserManager):
 
         return user
 
+
 class User(AbstractBaseUser, PermissionsMixin):
     """User in the system."""
     email = models.EmailField(max_length=255, unique=True)
@@ -50,6 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
 
 class Recipe(models.Model):
     """Recipe object."""
@@ -69,6 +74,7 @@ class Recipe(models.Model):
     def __str__(self):
         return self.title
 
+
 class Tag(models.Model):
     """Tag for filtering recipes."""
     name = models.CharField(max_length=255)
@@ -79,6 +85,7 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Ingredient(models.Model):
     """Ingredient for recipes."""
